@@ -1,49 +1,30 @@
 import pygame
 import random
 
-pygame.init()
-window = pygame.display.set_mode((600, 500))
-pygame.display.set_caption("Snake - Christopher CORNET")
+width = 610
+height = 480
 icon = pygame.image.load("snake.ico")
 pygame.display.set_icon(icon)
-FPS = 30
-CLOCK = pygame.time.Clock()
 
-# Snake
-snake_size = 1
-snake_color = (70, 255, 0) # couleur serpent = vert
-snake_x = 250
-snake_y = 200
-snake_speed = 5
+# Carrés dans la grille
+square = 32
+# Largeur et hauteur de la grille
+grid_width = width / square
+grid_height = height / square
 
-# Serpent avance toujours vers l'avant de 1 bloc
+FPS = 10
 
-# Le serpent doit manger des pommes qui apparaissent aléatoirement
+class Game():
+    def __init__(self):
+        pygame.init()
+        self.window = pygame.display.set_mode((width, height))
+        pygame.display.set_caption("Snake - Christopher CORNET")
 
-# Si le serpent se touche lui même ou la bordure de la fenêtre, fin de la partie
+    # Lancer le jeu
+    def run(self):
+        pass
 
-# Condition si serpent mange la pomme: augmente le score de 1, augmente le score et génère une nouvelle pomme à un x,y
-# random, augmenter de 1 bloc sa taille
-
-# Pomme
-apple_color = (255, 0, 0) # couleur pomme = rouge
-snake = pygame.draw.rect(window, apple_color, (random.randint(0, 600),random.randint(0, 500), 25, 25)) # x,y - width,height
-
-running = True
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_RIGHT:
-                snake_x += 30
-            if event.key == pygame.K_LEFT:
-                snake_x -= 30
-            if event.key == pygame.K_UP:
-                snake_y -= 30
-            if event.key == pygame.K_DOWN:
-                snake_y += 30
-    pygame.draw.rect(window, snake_color, (snake_x, snake_y, 25, 25)) # x,y - width,height
-    pygame.display.flip()
-    CLOCK.tick(FPS)
-pygame.quit()
+snake_game = Game()
+while True:
+    # Lancer le jeu
+    snake_game.run()
