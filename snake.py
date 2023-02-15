@@ -21,20 +21,25 @@ FPS = 10
 # Couleur du serpent
 snake_color = (22, 240, 26)
 
+# Background color
+bg_color = (0, 0, 0)
+
 # Jeu
 class Game():
     def __init__(self):
         pygame.init()
         self.window = pygame.display.set_mode((width, height))
         pygame.display.set_caption("Snake - Christopher CORNET")
-        self.clock = pygame.time.Clock()
+        self.fps = pygame.time.Clock()
+        # Direction
+        self.direction = 1
 
     # Lancer le jeu
     def run(self):
         # Boucle de jeu
         self.running = True
         while self.running:
-            self.clock.tick(FPS)
+            self.fps.tick(FPS)
             self.events()
             self.update()
             self.display_grid()
@@ -42,7 +47,15 @@ class Game():
     # Mettre à jour le serpent
     def update(self):
         self.all_sprites.update()
-        self.head.x += 1
+        # Avance automatiquement dans la dernière direction choisie
+        if self.direction == 1:
+            self.head.y -= 1 # Haut
+        elif self.direction == 2:
+            self.head.x -= 1 # Bas
+        elif self.direction == 3:
+            self.head.y += 1 # Gauche
+        elif self.direction == 4:
+            self.head.x += 1 # Droite
 
     # Afficher le serpent
     def snake_body(self):
@@ -59,6 +72,7 @@ class Game():
 
     # Afficher la grille
     def display_grid(self):
+        self.window.fill(bg_color)
         self.grid()
         self.all_sprites.draw(self.window)
         pygame.display.flip()
@@ -68,6 +82,16 @@ class Game():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.quit()
+            # Mouvements du serpent
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:
+                    self.direction = 1
+                elif event.key == pygame.K_DOWN:
+                    self.direction = 3
+                elif event.key == pygame.K_LEFT:
+                    self.direction = 2
+                elif event.key == pygame.K_RIGHT:
+                    self.direction = 4
 
 # Serpent
 class Snake(pygame.sprite.Sprite):
