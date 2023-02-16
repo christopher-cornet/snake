@@ -48,14 +48,14 @@ class Game():
     def update(self):
         self.all_sprites.update()
         # Avance automatiquement dans la dernière direction choisie
-        if self.direction == 1:
-            self.head.y -= 1 # Haut
-        elif self.direction == 2:
-            self.head.x -= 1 # Bas
-        elif self.direction == 3:
-            self.head.y += 1 # Gauche
-        elif self.direction == 4:
-            self.head.x += 1 # Droite
+        if self.direction == 1: # Haut
+            self.head.y -= 1 
+        elif self.direction == 2: # Bas
+            self.head.y += 1 
+        elif self.direction == 3: # Gauche
+            self.head.x -= 1
+        elif self.direction == 4: # Droite
+            self.head.x += 1
 
     # Afficher le serpent
     def snake_body(self):
@@ -85,13 +85,17 @@ class Game():
             # Mouvements du serpent
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_UP:
-                    self.direction = 1
-                elif event.key == pygame.K_DOWN:
-                    self.direction = 3
-                elif event.key == pygame.K_LEFT:
-                    self.direction = 2
-                elif event.key == pygame.K_RIGHT:
-                    self.direction = 4
+                    if not self.direction == 2:
+                        self.direction = 1
+                if event.key == pygame.K_DOWN:
+                    if not self.direction == 1:
+                        self.direction = 2
+                if event.key == pygame.K_LEFT:
+                    if not self.direction == 4:
+                        self.direction = 3
+                if event.key == pygame.K_RIGHT:
+                    if not self.direction == 3:
+                        self.direction = 4
 
 # Serpent
 class Snake(pygame.sprite.Sprite):
