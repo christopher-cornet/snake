@@ -1,7 +1,7 @@
 import pygame
 import random
 
-width = 610
+width = 640
 height = 480
 icon = pygame.image.load("snake.ico")
 pygame.display.set_icon(icon)
@@ -13,7 +13,7 @@ square_size = 32
 grid_width = width / square_size
 grid_height = height / square_size
 
-FPS = 8
+FPS = 10
 
 # Couleurs
 grid_color = (216, 216, 216)
@@ -30,6 +30,7 @@ class Game():
         self.fps = pygame.time.Clock()
         # Direction
         self.direction = 1
+        self.score = 0
 
     # Afficher le serpent, et les pommes
     def elements(self):
@@ -41,6 +42,15 @@ class Game():
 
         # Pomme emplacement aléatoire
         self.apple = Apple(self, random.randint(0, 18), random.randint(0, 14))
+
+    def check_coords(self):
+        x = random.randrange(0, grid_width - 1)
+        y = random.randrange(0, grid_height - 1)
+        
+        for parts in self.body:
+            if x == parts.x and y == parts.y:
+                x, y = self.check_coords()
+        return x, y
 
     # Lancer le jeu
     def run(self):
@@ -56,8 +66,13 @@ class Game():
     def update_game(self):
         # Augmenter la taille du serpent à chaque pomme mangée
         if self.apple.apple_hit():
+            x, y = self.check_coords()
+            self.apple.x = x
+            self.apple.y = y
             self.body.append(Snake(self, self.body[-1].x, self.body[-1].y))
+            self.score += 1
 
+        # Afficher le serpent et la pomme (update)
         self.snake_apple.update()
 
         # Bouger les parties du corps du serpent
@@ -165,6 +180,6 @@ class Apple(pygame.sprite.Sprite):
 
 snake_game = Game()
 while True:
-    # Afficher le serpent sur le jeu, Lancer le jeu
+    # Afficher le serpent et la pomme sur le jeu, Lancer le jeu
     snake_game.elements()
     snake_game.run()
