@@ -3,8 +3,6 @@ import random
 
 width = 640
 height = 480
-icon = pygame.image.load("snake.ico")
-pygame.display.set_icon(icon)
 
 # Taille des carrés dans la grille
 square_size = 32
@@ -16,7 +14,7 @@ grid_height = height / square_size
 FPS = 10
 
 # Couleurs
-grid_color = (216, 216, 216)
+grid_color = (0, 0, 0)
 snake_color = (22, 240, 26)
 bg_color = (0, 0, 0)
 apple_color = (255, 0, 0)
@@ -25,6 +23,8 @@ apple_color = (255, 0, 0)
 class Game():
     def __init__(self):
         pygame.init()
+        icon = pygame.image.load("snake.ico")
+        pygame.display.set_icon(icon)
         self.window = pygame.display.set_mode((width, height))
         pygame.display.set_caption("Snake - Christopher CORNET")
         self.fps = pygame.time.Clock()
@@ -44,8 +44,8 @@ class Game():
         self.apple = Apple(self, random.randint(0, 18), random.randint(0, 14))
 
     def check_coords(self):
-        x = random.randrange(0, grid_width - 1)
-        y = random.randrange(0, grid_height - 1)
+        x = random.randint(0, grid_width - 1)
+        y = random.randint(0, grid_height - 1)
         
         for parts in self.body:
             if x == parts.x and y == parts.y:
@@ -95,6 +95,7 @@ class Game():
         # Condition de défaite
         for i in self.body:
             if i.snake_hit():
+                print(self.score) # Print le score
                 self.running = False
 
     # Grille
@@ -110,6 +111,8 @@ class Game():
         self.window.fill(bg_color)
         self.snake_apple.draw(self.window)
         self.grid()
+        if self.paused:
+            Menu(10, 10, "PAUSED").draw(self.screen, 100)
         pygame.display.flip()
 
     # Evenements
@@ -177,6 +180,12 @@ class Apple(pygame.sprite.Sprite):
     def update(self):
         self.rect.x = self.x * square_size
         self.rect.y = self.y * square_size
+
+# Menu
+class Menu:
+    def __init__(self, x, y, text):
+        self.x, self.y = x * square_size, y * square_size
+        self.text = text
 
 snake_game = Game()
 while True:
