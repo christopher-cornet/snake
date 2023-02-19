@@ -31,6 +31,7 @@ class Game():
         # Direction
         self.direction = 1
         self.score = 0
+        self.pause = False
 
     # Afficher le serpent, et les pommes
     def elements(self):
@@ -106,13 +107,23 @@ class Game():
         for col in range(0, height, square_size):
             pygame.draw.line(self.window, grid_color, (0, col), (width, col)) # x,y 1er point, x,y 2e point
 
+    # Le serpent apparait à l'opposé quand il sort de l'écran
+            if self.head.x > grid_width:
+                self.head.x = 0
+            elif self.head.x < 0:
+                self.head.x = grid_width
+            elif self.head.y > grid_height:
+                self.head.y = 0
+            elif self.head.y < 0:
+                self.head.y = grid_height
+
     # Afficher la grille
     def display_grid(self):
         self.window.fill(bg_color)
         self.snake_apple.draw(self.window)
         self.grid()
-        if self.paused:
-            Menu(10, 10, "PAUSED").draw(self.screen, 100)
+        if self.pause:
+            Menu(10, 10, "PAUSE").draw(self.screen, 100)
         pygame.display.flip()
 
     # Evenements
@@ -134,6 +145,17 @@ class Game():
                 elif event.key == pygame.K_RIGHT:
                     if not self.direction == 3:
                         self.direction = 4
+
+    def menu(self):
+        self.save_score()
+        self.window.fill(snake_color)
+        if not self.running:
+            Menu(8, 7, "GAME OVER!").draw(self.window, 100)
+            Menu(14, 13, f"Score: {self.score}").draw(self.window, 30)
+        else:
+            Menu(8, 7, "SNAKE GAME").draw(self.window, 100)
+
+        Menu(13, 11, f"High Score: {self.high_score if self.high_score > self.score else self.score}").draw(self.window, 30)
 
     # Quitter le jeu
     def end(self):
