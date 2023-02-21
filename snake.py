@@ -15,9 +15,10 @@ FPS = 10
 
 # Couleurs
 grid_color = (0, 0, 0)
-snake_color = (22, 240, 26)
+snake_color = (255, 231, 82)
 bg_color = (0, 0, 0)
-apple_color = (255, 0, 0)
+apple_color = (148, 40, 255)
+btn_color = (35, 35, 35)
 
 # Jeu
 class Game():
@@ -32,6 +33,7 @@ class Game():
         self.direction = 1
         self.score = 0
         self.pause = False
+        self.high_score = self.get_high_score()
 
     # Afficher le serpent, et les pommes
     def elements(self):
@@ -108,14 +110,14 @@ class Game():
             pygame.draw.line(self.window, grid_color, (0, col), (width, col)) # x,y 1er point, x,y 2e point
 
     # Le serpent apparait à l'opposé quand il sort de l'écran
-            if self.head.x > grid_width:
-                self.head.x = 0
-            elif self.head.x < 0:
-                self.head.x = grid_width
-            elif self.head.y > grid_height:
-                self.head.y = 0
-            elif self.head.y < 0:
-                self.head.y = grid_height
+        if self.head.x > grid_width:
+            self.head.x = 0
+        elif self.head.x < 0:
+            self.head.x = grid_width
+        elif self.head.y > grid_height:
+            self.head.y = 0
+        elif self.head.y < 0:
+            self.head.y = grid_height
 
     # Afficher la grille
     def display_grid(self):
@@ -123,8 +125,23 @@ class Game():
         self.snake_apple.draw(self.window)
         self.grid()
         if self.pause:
-            Menu(10, 10, "PAUSE").draw(self.screen, 100)
+            Menu(10, 10, "PAUSE").draw(self.window, 100)
         pygame.display.flip()
+
+    # Meilleur score
+    def get_high_score(self):
+        with open("score.txt", "r") as file:
+            score = file.read()
+        return int(score)
+
+    # Enregistrer le plus grand score
+    def save_score(self):
+        with open("score.txt", "w") as file:
+            # Score plus grand que le meilleur score = écrire un nouveau score, sinon écrire le meilleur score
+            if self.score > self.high_score:
+                file.write(str(self.score))
+            else:
+                file.write(str(self.high_score))
 
     # Evenements
     def events(self):
@@ -145,17 +162,51 @@ class Game():
                 elif event.key == pygame.K_RIGHT:
                     if not self.direction == 3:
                         self.direction = 4
+                if event.type == pygame.K_ESCAPE:
+                    self.pause = not self.pause
 
+    # Menu
     def menu(self):
         self.save_score()
-        self.window.fill(snake_color)
-        if not self.running:
-            Menu(8, 7, "GAME OVER!").draw(self.window, 100)
+        self.window.fill(btn_color)
+        if not self.run:
+            Menu(8, 7, "PERDU !").draw(self.window, 80)
             Menu(14, 13, f"Score: {self.score}").draw(self.window, 30)
         else:
-            Menu(8, 7, "SNAKE GAME").draw(self.window, 100)
+            Menu(6.6, 2.5, "SNAKE").draw(self.window, 80)
 
-        Menu(13, 11, f"High Score: {self.high_score if self.high_score > self.score else self.score}").draw(self.window, 30)
+        Menu(6.5, 6, f"Meilleur score: {self.high_score if self.high_score > self.score else self.score}").draw(self.window, 30)
+
+        # Boutons
+        self.start_button = Button(self, ((148, 40, 255)), ((148, 40, 255)), width / 2 - (150/2), 270, 150, 50, "JOUER")
+        self.quit_button = Button(self, ((148, 40, 255)), ((148, 40, 255)), width / 2 - (150/2), 345, 150, 50, "QUITTER")
+        self.expect()
+
+    # Tant que jouer ou quitter n'est pas cliqué afficher le menu
+    def expect(self):
+        expecting = True
+        while expecting:
+            self.start_button.draw(self.window)
+            self.quit_button.draw(self.window)
+            pygame.display.flip()
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.end()
+                mouse_x, mouse_y = pygame.mouse.get_pos()
+                if event.type == pygame.MOUSEMOTION:
+                    if self.start_button.onclick(mouse_x, mouse_y):
+                        self.start_button.color = ((118, 27, 207))
+                    else:
+                        self.start_button.color = (148, 40, 255)
+                    if self.quit_button.onclick(mouse_x, mouse_y):
+                        self.quit_button.color = ((118, 27, 207))
+                    else:
+                        self.quit_button.color = (148, 40, 255)
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if self.start_button.onclick(mouse_x, mouse_y):
+                        expecting = False
+                    if self.quit_button.onclick(mouse_x, mouse_y):
+                        self.end()
 
     # Quitter le jeu
     def end(self):
@@ -209,8 +260,36 @@ class Menu:
         self.x, self.y = x * square_size, y * square_size
         self.text = text
 
+    def draw(self, window, font_size):
+        # Titre et score
+        font = pygame.font.SysFont("Impact", font_size)
+        text = font.render(self.text, True, ((255, 231, 82)))
+        window.blit(text, (self.x, self.y))
+
+# Boutons
+class Button():
+    def __init__(self, game, color, outline, x, y,  width, height, text):
+        self.game = game
+        self.color, self.outline = color, outline
+        self.x, self.y = x, y
+        self.width, self.height = width, height
+        self.text = text
+
+    def draw(self, window):
+        pygame.draw.rect(window, self.outline, (self.x - 2, self.y - 2, self.width + 4, self.height + 4))
+        pygame.draw.rect(window, self.color, (self.x, self.y, self.width, self.height))
+        font = pygame.font.SysFont("Times new Romans", 30)
+        text = font.render(self.text, True, (255, 245, 119))
+        draw_x = self.x + (self.width/2 - text.get_width()/2)
+        draw_y = self.y + (self.height/2 - text.get_height()/2)
+        window.blit(text, (draw_x, draw_y))
+
+    def onclick(self, mouse_x, mouse_y):
+        return self.x <= mouse_x <= self.x + self.width and self.y <= mouse_y <= self.y + self.height
+
 snake_game = Game()
 while True:
     # Afficher le serpent et la pomme sur le jeu, Lancer le jeu
+    snake_game.menu()
     snake_game.elements()
     snake_game.run()
